@@ -4,6 +4,7 @@ from typing import List, Optional, Dict, Union
 from pydantic import BaseModel, ValidationError
 from groq import Groq
 from groq._exceptions import BadRequestError
+from medical_report_summarizer import Summarizer
 
 client = Groq(
     api_key="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",
@@ -74,13 +75,14 @@ def get_user_final_prompt(user_prompt: str, diet_name: str, explanation: str) ->
 
 
 def get_model_four_diets_answer(
-    user_prompt: str, client, model_name: str = "llama3-8b-8192"
+    user_prompt: str, client, model_name: str = "mixtral-8x7b-32768"
 ):
 
     system_message = {
         "role": "system",
         "content": (
             "You are a helpful assistant. Your task is to generate four personalized diet plans for users based on their provided data. "
+            "If a medical report is provided, you should give it more weight and ensure the nutrition plan adheres closely to the medical guidelines and recommendations."
             "You'll provide 4 different diet plans. The data includes medical reports, address, weights, workout plans, body parts they want to take care of, age, nationality, and dietary preferences (e.g., vegan, vegetarian, etc.). "
             "Each diet plan should be safe, healthy, and tailored to the user's specific needs and preferences. "
             "Ensure the diets are diverse and cater to different aspects of the user's needs and preferences. "
@@ -123,7 +125,7 @@ def get_model_four_diets_answer(
 def get_detailed_nutrition_plan(
     user_final_prompt: str,
     client,
-    model_name: str = "llama3-8b-8192",
+    model_name: str = "mixtral-8x7b-32768",
 ):
 
     system_message = {
@@ -166,7 +168,7 @@ def get_detailed_nutrition_plan(
 def get_model_four_diets_answer_robust(
     user_prompt: str,
     client,
-    model_name: str = "llama3-8b-8192",
+    model_name: str = "mixtral-8x7b-32768",
     attempts: int = 10,
 ):
     """
@@ -195,7 +197,7 @@ def get_model_four_diets_answer_robust(
 def get_detailed_nutrition_plan_robust(
     user_final_prompt: str,
     client,
-    model_name: str = "llama3-8b-8192",
+    model_name: str = "mixtral-8x7b-32768",
     attempts: int = 10,
 ):
 
@@ -207,7 +209,11 @@ def get_detailed_nutrition_plan_robust(
     raise Exception("Failed to get a response after multiple attempts")
 
 
-def __main__(model_name: str = "llama3-8b-8192"):
+def __main__(
+    model_name: str = "mixtral-8x7b-32768",
+    medical_report_path: str = None,
+    api_key: str = None,
+):
 
     nationality = input("What is your Nationality? ")
     body_part = input("What body part do you want to take care of? ")
@@ -216,7 +222,12 @@ def __main__(model_name: str = "llama3-8b-8192"):
     workout_plan = input("How many times a week do you workout? ")
     age = input("What is your age? ")
     allergies = input("Do you have any allergies? ").split(",")
-    medical_report = input("What does your medical report say? ")
+    if medical_report_path:
+        summarizer = Summarizer(api_key, model_name, medical_report_path)
+        medical_report = summarizer.summarize_pdf()
+        print(medical_report)
+    else:
+        medical_report = ""
     first_user_prompt = get_user_first_prompt(
         nationality,
         body_part,
@@ -242,6 +253,15 @@ def __main__(model_name: str = "llama3-8b-8192"):
     ### Second answer ###
     second_answer = get_detailed_nutrition_plan_robust(final_user_prompt, client)
     print(second_answer)
+    ### Save the final output to a json a json file ###
+    with open("nutrition_plan.json", "w") as file:
+        second_answer_json = json.loads(second_answer)
+        print(second_answer_json)
+        json.dump(second_answer_json, file)
 
 
-__main__(model_name="llama3-70b-8192")
+__main__(
+    api_key="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",
+    medical_report_path="/Users/argentintom/Desktop/SnackSensei/Sample-filled-in-MR.pdf",
+    model_name="mixtral-8x7b-32768",
+)
