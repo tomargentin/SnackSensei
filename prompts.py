@@ -262,6 +262,6 @@ def __main__(
 
 __main__(
     api_key="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",
-    medical_report_path="/Users/argentintom/Desktop/SnackSensei/Sample-filled-in-MR.pdf",
+    medical_report_path="Sample-filled-in-MR.pdf",
     model_name="mixtral-8x7b-32768",
 )
