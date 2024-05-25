@@ -5,6 +5,7 @@ from pydantic import BaseModel, ValidationError
 from groq import Groq
 from groq._exceptions import BadRequestError
 from medical_report_summarizer import Summarizer
+from grocery_finder import GroceryStoreFetcher
 
 client = Groq(
     api_key="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",
@@ -219,13 +220,18 @@ def __main__(
     body_part = input("What body part do you want to take care of? ")
     preferred_diet = input("What are your preferred diets? ").split(",")
     address = input("What is your address? ")
+    if address:
+        fetcher = GroceryStoreFetcher(config_file="config.ini")
+        all_grocery_stores = fetcher.fetch_near_grocery_stores_by_address(address)
+    else:
+        address = ""
+        all_grocery_stores = []
     workout_plan = input("How many times a week do you workout? ")
     age = input("What is your age? ")
     allergies = input("Do you have any allergies? ").split(",")
     if medical_report_path:
         summarizer = Summarizer(api_key, model_name, medical_report_path)
         medical_report = summarizer.summarize_pdf()
-        print(medical_report)
     else:
         medical_report = ""
     first_user_prompt = get_user_first_prompt(
@@ -252,12 +258,12 @@ def __main__(
     final_user_prompt = get_user_final_prompt(first_user_prompt, diet_name, explanation)
     ### Second answer ###
     second_answer = get_detailed_nutrition_plan_robust(final_user_prompt, client)
-    print(second_answer)
+    second_answer_json = json.loads(second_answer)
+    ## Add the grocery list to the final output ##
+    second_answer_json["grocery_list"] = all_grocery_stores
     ### Save the final output to a json a json file ###
     with open("nutrition_plan.json", "w") as file:
-        second_answer_json = json.loads(second_answer)
-        print(second_answer_json)
-        json.dump(second_answer_json, file)
+        json.dump(second_answer_json, file, indent=4)
 
 
 __main__(
