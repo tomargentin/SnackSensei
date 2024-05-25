@@ -75,6 +75,15 @@ class GroceryStoreFetcher:
             for store in stores:
                 writer.writerow([store])
 
+    def fetch_near_grocery_stores_by_address(self, address, radius=1000.0):
+        coordinates = self.get_coordinates(address)
+        if coordinates:
+            latitude, longitude = coordinates
+            return self.fetch_all_grocery_stores(latitude, longitude, radius)
+        else:
+            print("Could not find coordinates for the address.")
+            return []
+
 
 if __name__ == "__main__":
     config_file = 'config.ini'
