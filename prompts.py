@@ -11,6 +11,10 @@ client = Groq(
     api_key="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",
 )
 
+api_key = "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",
+medical_report_path = "Sample-filled-in-MR.pdf",
+model_name = "mixtral-8x7b-32768",
+
 
 def get_user_first_prompt(
     nationality: str,
@@ -20,8 +24,15 @@ def get_user_first_prompt(
     workout_plan: Union[int, str],
     age: str,
     allergies: List[str],
-    medical_report: str,
+    medical_report: str = "",
 ) -> str:
+    api_key = "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",
+    medical_report_path = medical_report,
+    model_name = "mixtral-8x7b-32768",
+
+    if len(medical_report_path) > 4 :
+        summarizer = Summarizer(api_key, model_name, medical_report_path)
+        medical_report = summarizer.summarize_pdf()
 
     nationality_string = f"I am an {nationality}," if nationality else ""
     body_part_string = f"I want to take care of my {body_part}," if body_part else ""
@@ -168,7 +179,9 @@ def get_detailed_nutrition_plan(
 
 def get_model_four_diets_answer_robust(
     user_prompt: str,
-    client,
+    client = Groq(
+    api_key="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",
+    ),
     model_name: str = "mixtral-8x7b-32768",
     attempts: int = 10,
 ):
@@ -209,65 +222,59 @@ def get_detailed_nutrition_plan_robust(
             pass
     raise Exception("Failed to get a response after multiple attempts")
 
-
-def __main__(
-    model_name: str = "mixtral-8x7b-32768",
-    medical_report_path: str = None,
-    api_key: str = None,
-):
-
-    nationality = input("What is your Nationality? ")
-    body_part = input("What body part do you want to take care of? ")
-    preferred_diet = input("What are your preferred diets? ").split(",")
-    address = input("What is your address? ")
-    if address:
-        fetcher = GroceryStoreFetcher(config_file="config.ini")
-        all_grocery_stores = fetcher.fetch_near_grocery_stores_by_address(address)
-    else:
-        address = ""
-        all_grocery_stores = []
-    workout_plan = input("How many times a week do you workout? ")
-    age = input("What is your age? ")
-    allergies = input("Do you have any allergies? ").split(",")
-    if medical_report_path:
-        summarizer = Summarizer(api_key, model_name, medical_report_path)
-        medical_report = summarizer.summarize_pdf()
-    else:
-        medical_report = ""
-    first_user_prompt = get_user_first_prompt(
-        nationality,
-        body_part,
-        preferred_diet,
-        address,
-        workout_plan,
-        age,
-        allergies,
-        medical_report,
-    )
-    ### First answer ####
-    first_answer = get_model_four_diets_answer_robust(first_user_prompt, client)
-    print(first_answer)
-    selected_diet = int(
-        input(
-            "Select the diet plan that you like the most and press enter to continue..."
-        )
-    )
-    suggested_diets = json.loads(first_answer)["diet_plans"][selected_diet - 1]
-    diet_name = suggested_diets["diet_name"]
-    explanation = suggested_diets["explanation"]
-    final_user_prompt = get_user_final_prompt(first_user_prompt, diet_name, explanation)
-    ### Second answer ###
-    second_answer = get_detailed_nutrition_plan_robust(final_user_prompt, client)
-    second_answer_json = json.loads(second_answer)
-    ## Add the grocery list to the final output ##
-    second_answer_json["grocery_list"] = all_grocery_stores
-    ### Save the final output to a json a json file ###
-    with open("nutrition_plan.json", "w") as file:
-        json.dump(second_answer_json, file, indent=4)
-
-
-__main__(
-    api_key="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",
-    medical_report_path="Sample-filled-in-MR.pdf",
-    model_name="mixtral-8x7b-32768",
-)
+#
+# def __main__(
+#     model_name: str = "mixtral-8x7b-32768",
+#     medical_report_path: str = None,
+#     api_key: str = None,
+# ):
+#
+#     nationality = input("What is your Nationality? ")
+#     body_part = input("What body part do you want to take care of? ")
+#     preferred_diet = input("What are your preferred diets? ").split(",")
+#     address = input("What is your address? ")
+#     if address:
+#         fetcher = GroceryStoreFetcher(config_file="config.ini")
+#         all_grocery_stores = fetcher.fetch_near_grocery_stores_by_address(address)
+#     else:
+#         address = ""
+#         all_grocery_stores = []
+#     workout_plan = input("How many times a week do you workout? ")
+#     age = input("What is your age? ")
+#     allergies = input("Do you have any allergies? ").split(",")
+#     if medical_report_path:
+#         summarizer = Summarizer(api_key, model_name, medical_report_path)
+#         medical_report = summarizer.summarize_pdf()
+#     else:
+#         medical_report = ""
+#     first_user_prompt = get_user_first_prompt(
+#         nationality,
+#         body_part,
+#         preferred_diet,
+#         address,
+#         workout_plan,
+#         age,
+#         allergies,
+#         medical_report,
+#     )
+#     ### First answer ####
+#     first_answer = get_model_four_diets_answer_robust(first_user_prompt, client)
+#     print(first_answer)
+#     selected_diet = int(
+#         input(
+#             "Select the diet plan that you like the most and press enter to continue..."
+#         )
+#     )
+#     suggested_diets = json.loads(first_answer)["diet_plans"][selected_diet - 1]
+#     diet_name = suggested_diets["diet_name"]
+#     explanation = suggested_diets["explanation"]
+#     final_user_prompt = get_user_final_prompt(first_user_prompt, diet_name, explanation)
+#     ### Second answer ###
+#     second_answer = get_detailed_nutrition_plan_robust(final_user_prompt, client)
+#     second_answer_json = json.loads(second_answer)
+#     ## Add the grocery list to the final output ##
+#     second_answer_json["grocery_list"] = all_grocery_stores
+#     ### Save the final output to a json a json file ###
+#     with open("nutrition_plan.json", "w") as file:
+#         json.dump(second_answer_json, file, indent=4)
+#

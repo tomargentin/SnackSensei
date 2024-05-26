@@ -6,7 +6,7 @@ class GroceryStoreFetcher:
     def __init__(self, config_file):
         self.config = configparser.ConfigParser()
         self.config.read(config_file)
-        self.api_key = self.config['GOOGLE_MAPS']['API_KEY']
+        self.api_key = "AIzaSyAp96Qxg3Rm8Fvik9oLIF4r72u_quW0WIY"
     
     def fetch_all_grocery_stores(self, latitude, longitude, radius=1000.0):
         all_stores = []
@@ -49,6 +49,7 @@ class GroceryStoreFetcher:
         return all_stores
 
     def get_coordinates(self, address):
+        print("USER ADDRESS IN CORD", address)
         geocode_url = "https://maps.googleapis.com/maps/api/geocode/json"
         params = {
             'address': address,

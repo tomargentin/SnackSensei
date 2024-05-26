@@ -6,11 +6,14 @@ import configparser
 
 class Summarizer:
     def __init__(self, api_key, model_name, pdf_path):
-        self.api_key = api_key
-        self.model_name = model_name
-        self.pdf_path = pdf_path
+        self.api_key = api_key[0]
+        self.model_name = model_name[0]
+        self.pdf_path = pdf_path[0]
 
     def summarize_pdf(self):
+        print(self.api_key[0])
+        print(self.model_name[0])
+        print(self.pdf_path[0])
         llm = ChatGroq(temperature=0, model_name=self.model_name, api_key=self.api_key)
         loader = PyPDFLoader(self.pdf_path)
         pages = loader.load_and_split()
@@ -18,32 +21,32 @@ class Summarizer:
         response = chain.run(pages)
         return response
 
-def main():
-
-    # Create an argument parser
-    parser = argparse.ArgumentParser(description="Summarize a PDF document")
-
-    # Add an argument for the PDF file path
-    parser.add_argument("pdf_path", help="Path to the PDF file")
-
-    # Parse the command-line arguments
-    args = parser.parse_args()
-
-    # Create a ConfigParser object
-    config = configparser.ConfigParser()
-
-    # Read the config file
-    config.read('config.ini')
-
-    # Get the API key from the config file
-    api_key = config['GROQ']['API_KEY']
-
-    # Initialize the Summarizer class
-    summarizer = Summarizer(api_key, model_name="mixtral-8x7b-32768", pdf_path=args.pdf_path)
-
-    # Summarize the PDF
-    summary = summarizer.summarize_pdf()
-    print(summary)
-
-if __name__ == "__main__":
-    main()
+# def main():
+#
+#     # Create an argument parser
+#     parser = argparse.ArgumentParser(description="Summarize a PDF document")
+#
+#     # Add an argument for the PDF file path
+#     parser.add_argument("pdf_path", help="Path to the PDF file")
+#
+#     # Parse the command-line arguments
+#     args = parser.parse_args()
+#
+#     # Create a ConfigParser object
+#     config = configparser.ConfigParser()
+#
+#     # Read the config file
+#     config.read('config.ini')
+#
+#     # Get the API key from the config file
+#     api_key = config['GROQ']['API_KEY']
+#
+#     # Initialize the Summarizer class
+#     summarizer = Summarizer(api_key, model_name="mixtral-8x7b-32768", pdf_path=args.pdf_path)
+#
+#     # Summarize the PDF
+#     summary = summarizer.summarize_pdf()
+#     print(summary)
+#
+# if __name__ == "__main__":
+#     main()
