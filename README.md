@@ -1,5 +1,3 @@
-Certainly! Here's the revised README in a code block:
-
 # SnackSensei
 
 Personalize your diet plan with SnackSensei.
