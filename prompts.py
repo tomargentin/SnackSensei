@@ -145,7 +145,7 @@ def get_detailed_nutrition_plan(
         "content": (
             "You are a nutrition database that outputs detailed weekly meal plans in JSON. Your task is to generate a detailed nutrition plan for an entire week based on the provided diet name and explanation. "
             "The plan should include breakfast, lunch, and dinner for each day (Monday to Sunday). For each meal, provide the name of the meal, a list of ingredients in grams, and instructions on how to prepare it. "
-            "At the end, provide the total quantities of each ingredient needed for the week in grams. "
+            "At the end, provide the total quantities of each ingredient needed for the week in grams only irrespective of anything. "
             "Ensure the meals are balanced, healthy, and tailored to the user's needs.\n\n"
             "Please provide the output in the following JSON format strictly adhering to this schema and do not provide any other information:\n"
             "{\n"

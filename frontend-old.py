@@ -7,7 +7,9 @@ from prompts import (get_user_first_prompt,
                      get_model_four_diets_answer_robust,
                      get_user_final_prompt,
                      get_detailed_nutrition_plan_robust)
+
 import random
+
 from grocery_finder import GroceryStoreFetcher
 from groq import Groq
 import requests
@@ -64,7 +66,7 @@ def main():
 
 # Helper function to add background image
 def add_background(page_num):
-    image_path = f"images/background-logo.png"
+    image_path = f"images/{page_num}.png"
     try:
         with open(image_path, "rb") as image_file:
             image_bytes = image_file.read()
@@ -77,7 +79,7 @@ def add_background(page_num):
             background-size: cover;
             background-repeat: no-repeat;
             background-attachment: fixed;
-            opacity: 1;
+            opacity: 0.5;
         }}
         </style>
         """
@@ -336,7 +338,6 @@ def page7(next_page, prev_page):
 
 # Page 8: Display Results
 def page8(next_page, prev_page):
-    add_background(8)
     st.title(f"Diet Plans just for you {st.session_state.user_info.get('Name')}")
 
     if "diets" in st.session_state:
@@ -365,19 +366,92 @@ def page8(next_page, prev_page):
     with col1:
         if st.button("Back", key="back_button_page8"):
             prev_page()
-    st.markdown("""
-            <style>
-            .stButton button {
-                border-radius: 50px;
-                width: 100%;
-            }
-            </style>
-        """, unsafe_allow_html=True)
+    with col2:
+        if st.button("Next", key="next_button_page8"):
+            next_page()
 
+#
+# def page9(next_page, prev_page):
+#     add_background(6)
+#     if "activated_card" not in st.session_state:
+#         st.error("No diet plan selected. Please go back and select a diet plan.")
+#         if st.button("Back"):
+#             prev_page()
+#         return
+#
+#     # Show selected diet plan
+#     diet_title = st.session_state["activated_card"]["diet_name"]
+#     diet_explanation = st.session_state["activated_card"]["explanation"]
+#     st.title(diet_title)  # Display the selected diet title at the top
+#     st.write(diet_explanation)  # Display the explanation
+#
+#     user_prompt = f"Based on your selection of {diet_title}, here is the explanation:"
+#     final_user_prompt = get_user_final_prompt(
+#         user_prompt, diet_explanation, diet_explanation
+#     )
+#     detailed_nutrition_plan = get_detailed_nutrition_plan_robust(
+#         final_user_prompt, client
+#     )
+#     json_file = json.loads(detailed_nutrition_plan)
+#
+#     st.write("Diet information:")
+#     st.title("Weekly Plan")
+#     st.write("Plan your meals for the week:")
+#
+#     days = [
+#         "Monday",
+#         "Tuesday",
+#         "Wednesday",
+#         "Thursday",
+#         "Friday",
+#         "Saturday",
+#         "Sunday",
+#     ]
+#     meals = ["breakfast", "lunch", "dinner"]
+#
+#     meal_plan = json_file["week_plan"]
+#     for day in days:
+#         st.subheader(day)
+#         if day in meal_plan:
+#             for meal in meals:
+#                 if meal in meal_plan[day]:
+#                     meal_info = meal_plan[day][meal]
+#                     st.markdown(
+#                         f"**{meal.capitalize()} Name:** {meal_info['name']}"
+#                     )
+#                     st.markdown(
+#                         f"**{meal.capitalize()} Ingredients:** {', '.join(meal_info['ingredients'])}"
+#                     )
+#                     st.markdown(
+#                         f"**{meal.capitalize()} Recipe:** {meal_info['instructions']}"
+#                     )
+#                 else:
+#                     st.markdown(f"**{meal.capitalize()} Name:** Not Provided")
+#                     st.markdown(f"**{meal.capitalize()} Ingredients:** Not Provided")
+#                     st.markdown(f"**{meal.capitalize()} Recipe:** Not Provided")
+#     st.session_state["total_quantities"] = json_file["total_quantities (grams)"]
+#
+#     col1, col2 = st.columns([1, 1])
+#
+#     with col1:
+#         if st.button("Back", key="back_button_page9"):
+#             prev_page()
+#     with col2:
+#         if st.button("Finish", key="finish_button_page9"):
+#             st.success("Your nutrition plan is ready!")
+#
+#     st.markdown("""
+#         <style>
+#         .stButton button {
+#             border-radius: 50px;
+#             width: 100%;
+#         }
+#         </style>
+#     """, unsafe_allow_html=True)
 
 
 def page9(next_page, prev_page):
-    add_background(9)
+    add_background(6)
     if "activated_card" not in st.session_state:
         st.error("No diet plan selected. Please go back and select a diet plan.")
         if st.button("Back"):
@@ -420,15 +494,15 @@ def page9(next_page, prev_page):
             .day-block {
                 border: 2px solid #000;
                 border-radius: 40px;
-                padding: 10px;
+                padding: 20px;
                 margin-bottom: 20px;
             }
             .meal-block {
-                background-color: #FFDAB9;
+                background-color: #333;
                 border-radius: 20px;
                 padding: 10px;
                 margin-bottom: 10px;
-                color: #000000;
+                color: #fff;
             }
         </style>
     """, unsafe_allow_html=True)
@@ -488,7 +562,7 @@ def page9(next_page, prev_page):
 
     col1, col2, col3 = st.columns([1, 1, 1])
     with col2:
-        if st.button("Buy groceries"):
+        if st.button("Wondering where to get the groceries, we'll get you cheapest from next to you only"):
             next_page()
 
 
@@ -508,7 +582,6 @@ def fetch_near_grocery_stores_by_address(address, radius=1000.0):
     # return ["Grocery Store 1", "Grocery Store 2", "Grocery Store 3", "Grocery Store 4"]
 
 def page10(next_page, prev_page):
-    add_background(10)
     st.title("Find Grocery Stores Near You")
 
     address = st.text_input("Enter your address")
@@ -645,7 +718,6 @@ def page10(next_page, prev_page):
 #     import requests
 
 def page11(next_page, prev_page):
-    add_background(10)
     st.title("Grocery Store Details")
     print(st.session_state["total_quantities"])
     ingredients = st.session_state["total_quantities"]
@@ -718,13 +790,9 @@ def page11(next_page, prev_page):
         </style>
     """, unsafe_allow_html=True)
 
-
-
 if __name__ == "__main__":
     # Create the directory to save uploaded files if it doesn't exist
     if not os.path.exists("uploaded_files"):
         os.makedirs("uploaded_files")
 
     main()
-
-
