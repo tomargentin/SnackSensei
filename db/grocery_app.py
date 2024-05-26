@@ -9,7 +9,7 @@ available_stores = ['aldi', 'kaufland', 'abc', 'pqr', 'std']
 
 def get_store_items(store_name):
     # Connect to SQLite database
-    conn = sqlite3.connect('prices.db')
+    conn = sqlite3.connect('../uploaded_files/prices.db')
     c = conn.cursor()
     # Get items from the specified store
     c.execute(f'SELECT item, price, quantity FROM {store_name}')

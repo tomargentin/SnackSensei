@@ -16,14 +16,14 @@ categories = {
     "Frozen Foods": [],
 }
 
-def fetch_items_from_groq(category, batch_size=50, total_items=500):
+def fetch_items_from_groq(category, batch_size=50, total_items=100):
     items = []
     while len(items) < total_items:
         system_message = {
             "role": "system",
             "content": (
-                "You are a helpful assistant. Your task is to generate a list of grocery items, including item name, price, and quantity. "
-                "Please provide 50 unique items in the specified category with their prices and quantities. "
+                "You are a helpful assistant. Your task is to generate a list of grocery items which are mostly found in europe supermarket, including item name, price, and quantity. "
+                "Please provide 50 unique items in the specified category with their price for 100 grams. "
                 "Each item should be unique and the data should be structured in JSON format strictly adhering to this schema and nothing else:\n"
                 "{\n"
                 "    \"items\": [\n"
@@ -47,7 +47,7 @@ def fetch_items_from_groq(category, batch_size=50, total_items=500):
         try:
             chat_completion = client.chat.completions.create(
                 messages=[system_message, user_message],
-                model="llama3-8b-8192",
+                model="mixtral-8x7b-32768",
                 response_format={"type": "json_object"},
                 temperature=1,
             )
@@ -72,7 +72,7 @@ def fetch_and_store_items_for_store(store_name):
     return store_categories
 
 def insert_items(store_name, store_categories):
-    conn = sqlite3.connect('prices.db')
+    conn = sqlite3.connect('../uploaded_files/prices.db')
     c = conn.cursor()
 
     for category, items in store_categories.items():

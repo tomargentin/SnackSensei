@@ -2,7 +2,7 @@ import sqlite3
 
 
 def create_database():
-    conn = sqlite3.connect('prices.db')
+    conn = sqlite3.connect('../uploaded_files/prices.db')
     c = conn.cursor()
 
     # Create table for Aldi
