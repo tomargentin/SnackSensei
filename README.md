@@ -1,6 +1,7 @@
 # SnackSensei
 
 Personalize your diet plan with SnackSensei.
+This project was developed in just one day for the Mistral Hackathon in Paris, which took place on May 25th and 26th, 2024.
 
 ## Setup Instructions
 
